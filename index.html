@@ -941,7 +941,8 @@
   function resetVariavelForm(){
     editingVariavelId = null;
     $('variavelFormTitle').textContent = 'Nova despesa variável';
-    $('vr-desc').value=''; $('vr-valor').value=''; $('vr-data').value='';
+    $('vr-desc').value=''; $('vr-valor').value='';
+    $('vr-data').value = todayIso();
     $('vr-categoria').value = 'Mercado';
     $('vr-pago').checked = false;
   }
@@ -962,8 +963,10 @@
   function saveVariavel(){
     var desc = $('vr-desc').value.trim();
     var valor = parseFloat($('vr-valor').value) || 0;
+    var dataVal = $('vr-data').value;
     if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido.'); return; }
-    var data = { desc:desc, categoria:$('vr-categoria').value, valor:valor, data:$('vr-data').value, pago:$('vr-pago').checked };
+    if (!dataVal) { alert('Preencha a data dessa despesa — sem data ela não entra no resumo do mês nem no gráfico.'); return; }
+    var data = { desc:desc, categoria:$('vr-categoria').value, valor:valor, data:dataVal, pago:$('vr-pago').checked };
     if (editingVariavelId) {
       var existing = state.pessoalVariaveis.find(function(v){ return v.id === editingVariavelId; });
       if (existing) Object.assign(existing, data);
@@ -1423,6 +1426,7 @@
   document.addEventListener('DOMContentLoaded', function(){
     $('mesSogno').value = currentMonthStr();
     $('mesPessoal').value = currentMonthStr();
+    $('vr-data').value = todayIso();
     updateSinalVisibility();
     safeRun(initTabs, 'abas');
     safeRun(initForms, 'formulários');
