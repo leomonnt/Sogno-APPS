@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SOGNO — Controle Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a; --white:#ffffff;
+    --g1:#f5f5f5; --g2:#e8e8e8; --g3:#d4d4d4; --g4:#9a9a9a; --g5:#5c5c5c;
+    --green:#1c7a3e; --red:#b00020; --amber:#8a6d00;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--white); color:var(--black);
+    font-family:'Poppins',-apple-system,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--black);color:var(--white);}
+
+  .topbar{
+    display:flex;align-items:center;gap:14px;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--g2);
+    position:sticky;top:0;background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:50;
+  }
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .logo-mark{width:36px;height:36px;flex:none;}
+  .logo-mark img{width:100%;height:100%;display:block;object-fit:contain;}
+  .brand{display:flex;flex-direction:column;line-height:1.05;}
+  .brand b{font-weight:800;font-size:14px;letter-spacing:.1em;}
+  .brand span{font-size:10px;color:var(--g5);letter-spacing:.05em;margin-top:2px;}
+  .backup-btn{
+    border:1px solid var(--g3);background:var(--white);border-radius:8px;
+    padding:8px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--g5);
+    cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .backup-btn svg{width:14px;height:14px;}
+  .backup-btn:hover{border-color:var(--black);color:var(--black);}
+
+  .shell{max-width:720px;margin:0 auto;padding:24px 18px 60px;}
+
+  .mode-switch{display:flex;border:1px solid var(--black);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+  .mode-switch button{
+    flex:1;padding:13px 10px;font-family:inherit;font-weight:700;font-size:14px;
+    border:none;background:var(--white);color:var(--black);cursor:pointer;
+  }
+  .mode-switch button.active{background:var(--black);color:var(--white);}
+
+  .tabs{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex:0 0 auto;border:1px solid var(--g3);background:var(--white);color:var(--g5);
+    font-family:inherit;font-weight:600;font-size:13px;padding:9px 15px;border-radius:999px;cursor:pointer;
+  }
+  .tab-btn.active{background:var(--black);border-color:var(--black);color:var(--white);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{border:1px solid var(--g2);border-radius:var(--radius);padding:18px;margin-bottom:14px;background:var(--white);}
+  .card h3{font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:0 0 14px;}
+  .card h3 .hint{display:block;font-size:11.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--g5);margin-top:4px;}
+  .section-heading{font-size:13.5px;font-weight:800;margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+  .section-heading:first-child{margin-top:0;}
+  .section-heading .count{font-size:11px;font-weight:700;color:var(--g5);background:var(--g1);border-radius:999px;padding:2px 8px;}
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:var(--g5);}
+  .field input,.field select{
+    width:100%;border:1px solid var(--g3);border-radius:8px;padding:11px 12px;
+    font-family:inherit;font-size:16px;color:var(--black);background:var(--white);
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--black);box-shadow:0 0 0 3px rgba(10,10,10,.06);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:480px){.row2{grid-template-columns:1fr;}}
+  .checkline{display:flex;align-items:center;gap:9px;padding:4px 0;}
+  .checkline input{width:18px;height:18px;accent-color:var(--black);flex:none;cursor:pointer;}
+  .checkline label{font-size:13.5px;font-weight:600;color:var(--black);cursor:pointer;margin:0;}
+
+  .form-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn{
+    font-family:inherit;font-weight:700;font-size:13.5px;border-radius:8px;padding:11px 18px;
+    cursor:pointer;border:1px solid var(--black);
+  }
+  .btn-primary{background:var(--black);color:var(--white);}
+  .btn-primary:hover{opacity:.85;}
+  .btn-ghost{background:var(--white);color:var(--black);}
+  .btn-ghost:hover{background:var(--g1);}
+  .btn-block{width:100%;}
+
+  .add-toggle{
+    width:100%;border:1px dashed var(--g3);border-radius:var(--radius);background:var(--white);
+    padding:13px;font-family:inherit;font-weight:700;font-size:13.5px;color:var(--g5);
+    cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .add-toggle:hover{border-color:var(--black);color:var(--black);}
+  .add-toggle svg{width:15px;height:15px;}
+
+  .record{border:1px solid var(--g2);border-radius:var(--radius);padding:15px 16px;margin-bottom:10px;}
+  .record-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .record-title{font-weight:700;font-size:14.5px;}
+  .record-sub{font-size:12px;color:var(--g5);margin-top:2px;}
+  .record-value{font-weight:800;font-size:15px;white-space:nowrap;}
+  .record-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .badge{
+    font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:4px 9px;border-radius:6px;
+    border:1px solid var(--g3);color:var(--g5);
+  }
+  .badge-pending{border-color:#e0c04d;color:var(--amber);background:#fdf8e8;}
+  .badge-partial{border-color:#a8c9ff;color:#1c4f9c;background:#eef4ff;}
+  .badge-done{border-color:#a8dabb;color:var(--green);background:#eefaf1;}
+  .badge-late{border-color:#f0b3b8;color:var(--red);background:#fdecee;}
+  .badge-off{border-color:var(--g3);color:var(--g4);background:var(--g1);}
+  .record-actions{display:flex;gap:8px;margin-top:12px;}
+  .icon-btn{
+    border:1px solid var(--g3);background:var(--white);border-radius:7px;padding:7px 10px;
+    font-family:inherit;font-size:12px;font-weight:600;color:var(--g5);cursor:pointer;
+    display:flex;align-items:center;gap:5px;
+  }
+  .icon-btn:hover{border-color:var(--black);color:var(--black);}
+  .icon-btn svg{width:13px;height:13px;}
+  .icon-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+  .sub-expenses{margin-top:12px;border-top:1px solid var(--g2);padding-top:12px;}
+  .sub-expenses-title{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--g5);margin-bottom:8px;}
+  .sub-expense-row{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--g1);}
+  .sub-expense-row:last-child{border-bottom:none;}
+  .mini-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .mini-add input,.mini-add select{
+    border:1px solid var(--g3);border-radius:6px;padding:8px 9px;font-family:inherit;font-size:13px;
+  }
+  .mini-add input[data-role="desc"]{flex:2;min-width:120px;}
+  .mini-add input[data-role="valor"]{flex:1;min-width:80px;}
+  .mini-add select{flex:1;min-width:110px;}
+  .mini-add button{
+    border:none;background:var(--black);color:var(--white);border-radius:6px;padding:8px 12px;
+    font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;
+  }
+
+  .empty-state{text-align:center;padding:30px 10px;color:var(--g4);font-size:13px;}
+
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  @media (max-width:480px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-card{border:1px solid var(--g2);border-radius:var(--radius);padding:16px;}
+  .summary-card.highlight{background:var(--black);color:var(--white);border-color:var(--black);}
+  .summary-card .lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--g5);}
+  .summary-card.highlight .lbl{color:#bbb;}
+  .summary-card .val{font-size:21px;font-weight:800;margin-top:6px;}
+  .summary-card.neg .val{color:var(--red);}
+
+  .month-picker{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .month-picker input{
+    border:1px solid var(--g3);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:15px;flex:1;
+  }
+
+  .checklist-row{
+    display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--g2);
+  }
+  .checklist-row:last-child{border-bottom:none;}
+  .checklist-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--black);flex:none;cursor:pointer;}
+  .checklist-row .cl-body{flex:1;min-width:0;}
+  .checklist-row .cl-title{font-weight:700;font-size:13.5px;}
+  .checklist-row .cl-sub{font-size:11.5px;color:var(--g5);margin-top:2px;}
+  .checklist-row .cl-value{font-weight:800;font-size:14px;white-space:nowrap;}
+
+  .category-chart-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;}
+  @media (min-width:520px){.category-chart-wrap{flex-direction:row;align-items:center;}}
+  .category-chart-wrap svg{width:170px;height:170px;flex:none;display:block;}
+  .category-legend{width:100%;flex:1;}
+  .legend-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--g1);}
+  .legend-row:last-child{border-bottom:none;}
+  .legend-dot{width:11px;height:11px;border-radius:3px;flex:none;}
+  .legend-label{flex:1;font-size:12.5px;font-weight:600;}
+  .legend-value{font-size:12px;color:var(--g5);white-space:nowrap;}
+
+  .toggle-pill{
+    border:1px solid var(--g3);background:var(--white);border-radius:999px;padding:4px 11px;
+    font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--g5);
+  }
+  .toggle-pill.on{background:var(--black);color:var(--white);border-color:var(--black);}
+
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,10,10,.55);z-index:200;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  @media (min-width:640px){.overlay{align-items:center;}}
+  .overlay-box{
+    background:var(--white);border-radius:16px 16px 0 0;padding:24px 22px calc(24px + env(safe-area-inset-bottom));
+    width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+  }
+  @media (min-width:640px){.overlay-box{border-radius:16px;}}
+  .overlay-box h3{font-size:16px;font-weight:800;margin:0 0 6px;}
+  .overlay-box p{font-size:13px;color:var(--g5);line-height:1.55;margin:0 0 18px;}
+  .overlay-close{display:flex;justify-content:flex-end;margin-bottom:6px;}
+  .overlay-close button{border:none;background:none;font-size:22px;color:var(--g5);cursor:pointer;line-height:1;padding:4px;}
+  .file-input-wrap{border:1px dashed var(--g3);border-radius:8px;padding:16px;text-align:center;margin-top:8px;}
+  .file-input-wrap input{width:100%;font-size:13px;}
+
+  .status-msg{font-size:12.5px;margin-top:10px;text-align:center;min-height:16px;color:var(--g5);}
+  .status-msg.ok{color:var(--green);font-weight:600;}
+  .status-msg.error{color:var(--red);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark"><img src="data:image/png;base64,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" alt="Logo Sogno"></div>
+    <div class="brand"><b>SOGNO</b><span>CONTROLE FINANCEIRO</span></div>
+  </div>
+  <button class="backup-btn" id="btnBackup">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    Backup
+  </button>
+</div>
+
+<div class="shell">
+
+  <div class="mode-switch">
+    <button id="modeSognoBtn" class="active">Sogno</button>
+    <button id="modePessoalBtn">Pessoal</button>
+  </div>
+
+  <div class="tabs" id="tabsSogno">
+    <button class="tab-btn active" data-panel="eventos">Eventos</button>
+    <button class="tab-btn" data-panel="despesasNegocio">Despesas</button>
+    <button class="tab-btn" data-panel="resumoSogno">Resumo</button>
+  </div>
+  <div class="tabs" id="tabsPessoal" style="display:none;">
+    <button class="tab-btn active" data-panel="fixas">Fixas</button>
+    <button class="tab-btn" data-panel="variaveis">Variáveis</button>
+    <button class="tab-btn" data-panel="receitas">Receitas</button>
+    <button class="tab-btn" data-panel="resumoPessoal">Resumo</button>
+  </div>
+
+  <!-- ===== SOGNO: EVENTOS ===== -->
+  <section class="panel active" data-panel="eventos">
+    <button class="add-toggle" id="toggleEventoForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Novo evento
+    </button>
+    <div class="card" id="eventoForm" style="display:none;">
+      <h3 id="eventoFormTitle">Novo evento</h3>
+      <div class="row2">
+        <div class="field"><label>Cliente</label><input type="text" id="ev-cliente" placeholder="Nome do cliente"></div>
+        <div class="field"><label>Evento</label><input type="text" id="ev-evento" placeholder="Nome do evento"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Data do evento</label><input type="date" id="ev-data"></div>
+        <div class="field"><label>Segmento</label>
+          <select id="ev-segmento">
+            <option value="Festa/Balada">Festa/Balada</option>
+            <option value="Corporativo">Corporativo</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Valor total do contrato</label><input type="number" id="ev-valorTotal" min="0" step="10" placeholder="0,00"></div>
+
+      <div class="checkline" style="margin:12px 0 14px;padding:10px 12px;background:var(--g1);border-radius:8px;">
+        <input type="checkbox" id="ev-semSinal">
+        <label for="ev-semSinal">Esse evento não tem sinal (pagamento único)</label>
+      </div>
+
+      <div id="ev-sinalBlock">
+        <div class="row2">
+          <div class="field"><label>Valor do sinal</label><input type="number" id="ev-sinalValor" min="0" step="10" placeholder="0,00"></div>
+          <div class="field"><label>Data do sinal (se pago)</label><input type="date" id="ev-sinalData"></div>
+        </div>
+        <div class="checkline"><input type="checkbox" id="ev-sinalPago"><label for="ev-sinalPago">Sinal já foi pago</label></div>
+      </div>
+
+      <div class="row2" style="margin-top:14px;">
+        <div class="field"><label id="ev-saldoLabel">Valor do saldo</label><input type="number" id="ev-saldoValor" min="0" step="10" placeholder="0,00"></div>
+        <div class="field"><label id="ev-saldoDataLabel">Data do saldo (se pago)</label><input type="date" id="ev-saldoData"></div>
+      </div>
+      <div class="checkline"><input type="checkbox" id="ev-saldoPago"><label for="ev-saldoPago" id="ev-saldoPagoLabel">Saldo já foi pago</label></div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveEvento">Salvar evento</button>
+        <button class="btn btn-ghost" id="cancelEvento">Cancelar</button>
+      </div>
+    </div>
+    <div id="eventosList"></div>
+  </section>
+
+  <!-- ===== SOGNO: DESPESAS NEGÓCIO ===== -->
+  <section class="panel" data-panel="despesasNegocio">
+    <button class="add-toggle" id="toggleDespesaNegForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nova despesa do negócio
+    </button>
+    <div class="card" id="despesaNegForm" style="display:none;">
+      <h3 id="despesaNegFormTitle">Nova despesa</h3>
+      <div class="field"><label>Descrição</label><input type="text" id="dn-desc" placeholder="Ex: Aluguel de equipamento"></div>
+      <div class="row2">
+        <div class="field"><label>Categoria</label>
+          <select id="dn-categoria">
+            <option>Equipe/Freelancers</option>
+            <option>Equipamento</option>
+            <option>Deslocamento/Combustível</option>
+            <option>Edição/Terceirizados</option>
+            <option>Marketing</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field"><label>Valor</label><input type="number" id="dn-valor" min="0" step="10" placeholder="0,00"></div>
+      </div>
+      <div class="field"><label>Data</label><input type="date" id="dn-data"></div>
+      <div class="checkline"><input type="checkbox" id="dn-recorrente"><label for="dn-recorrente">Despesa recorrente (mensal)</label></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveDespesaNeg">Salvar despesa</button>
+        <button class="btn btn-ghost" id="cancelDespesaNeg">Cancelar</button>
+      </div>
+    </div>
+    <div id="despesasNegList"></div>
+  </section>
+
+  <!-- ===== SOGNO: RESUMO ===== -->
+  <section class="panel" data-panel="resumoSogno">
+    <div class="month-picker"><input type="month" id="mesSogno"></div>
+    <div class="summary-grid">
+      <div class="summary-card highlight"><div class="lbl">Faturamento recebido</div><div class="val" id="sg-faturamento">R$ 0,00</div></div>
+      <div class="summary-card"><div class="lbl">Despesas do mês</div><div class="val" id="sg-despesas">R$ 0,00</div></div>
+      <div class="summary-card"><div class="lbl">Lucro líquido</div><div class="val" id="sg-lucro">R$ 0,00</div></div>
+      <div class="summary-card"><div class="lbl">A receber (total)</div><div class="val" id="sg-areceber">R$ 0,00</div></div>
+    </div>
+    <div class="card">
+      <h3>Eventos em aberto</h3>
+      <div id="sg-abertos"></div>
+    </div>
+    <button class="btn btn-ghost btn-block" id="exportCsvSogno">Exportar CSV do mês</button>
+  </section>
+
+  <!-- ===== PESSOAL: FIXAS (cadastro) ===== -->
+  <section class="panel" data-panel="fixas" style="display:none;">
+    <div class="card" style="background:var(--g1);border-style:dashed;">
+      <h3 style="margin-bottom:6px;">Como funciona</h3>
+      <p style="font-size:12.5px;color:var(--g5);margin:0;line-height:1.55;">Cadastre cada conta fixa <b>uma única vez</b> (aluguel, internet, assinatura...). Todo mês, um checklist pra marcar "paga" aparece sozinho na aba Resumo — sem precisar recadastrar nada.</p>
+    </div>
+    <button class="add-toggle" id="toggleFixaForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nova despesa fixa
+    </button>
+    <div class="card" id="fixaForm" style="display:none;">
+      <h3 id="fixaFormTitle">Nova despesa fixa</h3>
+      <div class="field"><label>Descrição</label><input type="text" id="fx-desc" placeholder="Ex: Aluguel de casa"></div>
+      <div class="row2">
+        <div class="field"><label>Categoria</label>
+          <select id="fx-categoria">
+            <option>Moradia</option>
+            <option>Contas Residenciais</option>
+            <option>Contas Fixas</option>
+            <option>Mercado</option>
+            <option>Alimentação</option>
+            <option>Carro</option>
+            <option>Transporte</option>
+            <option>Viagem</option>
+            <option>Saúde</option>
+            <option>Lazer</option>
+            <option>Compras</option>
+            <option>Cartão de Crédito</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field"><label>Valor mensal</label><input type="number" id="fx-valor" min="0" step="10" placeholder="0,00"></div>
+      </div>
+      <div class="field"><label>Dia do vencimento</label><input type="number" id="fx-dia" min="1" max="31" placeholder="Ex: 10"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveFixa">Salvar despesa fixa</button>
+        <button class="btn btn-ghost" id="cancelFixa">Cancelar</button>
+      </div>
+    </div>
+    <div id="fixasList"></div>
+  </section>
+
+  <!-- ===== PESSOAL: VARIÁVEIS ===== -->
+  <section class="panel" data-panel="variaveis" style="display:none;">
+    <button class="add-toggle" id="toggleVariavelForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nova despesa variável
+    </button>
+    <div class="card" id="variavelForm" style="display:none;">
+      <h3 id="variavelFormTitle">Nova despesa variável</h3>
+      <div class="field"><label>Descrição</label><input type="text" id="vr-desc" placeholder="Ex: Mercado da semana"></div>
+      <div class="row2">
+        <div class="field"><label>Categoria</label>
+          <select id="vr-categoria">
+            <option>Moradia</option>
+            <option>Contas Residenciais</option>
+            <option>Contas Fixas</option>
+            <option>Mercado</option>
+            <option>Alimentação</option>
+            <option>Carro</option>
+            <option>Transporte</option>
+            <option>Viagem</option>
+            <option>Saúde</option>
+            <option>Lazer</option>
+            <option>Compras</option>
+            <option>Cartão de Crédito</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field"><label>Valor</label><input type="number" id="vr-valor" min="0" step="10" placeholder="0,00"></div>
+      </div>
+      <div class="field"><label>Data</label><input type="date" id="vr-data"></div>
+      <div class="checkline"><input type="checkbox" id="vr-pago"><label for="vr-pago">Já paguei essa despesa</label></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveVariavel">Salvar despesa</button>
+        <button class="btn btn-ghost" id="cancelVariavel">Cancelar</button>
+      </div>
+    </div>
+    <div id="variaveisList"></div>
+  </section>
+
+  <!-- ===== PESSOAL: RECEITAS ===== -->
+  <section class="panel" data-panel="receitas" style="display:none;">
+    <button class="add-toggle" id="toggleReceitaForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nova receita
+    </button>
+    <div class="card" id="receitaForm" style="display:none;">
+      <h3 id="receitaFormTitle">Nova receita</h3>
+      <div class="field"><label>Descrição</label><input type="text" id="rc-desc" placeholder="Ex: Retirada da Sogno"></div>
+      <div class="row2">
+        <div class="field"><label>Valor</label><input type="number" id="rc-valor" min="0" step="10" placeholder="0,00"></div>
+        <div class="field"><label>Data</label><input type="date" id="rc-data"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveReceita">Salvar receita</button>
+        <button class="btn btn-ghost" id="cancelReceita">Cancelar</button>
+      </div>
+    </div>
+    <div id="receitasList"></div>
+  </section>
+
+  <!-- ===== PESSOAL: RESUMO ===== -->
+  <section class="panel" data-panel="resumoPessoal" style="display:none;">
+    <div class="month-picker"><input type="month" id="mesPessoal"></div>
+    <div class="summary-grid">
+      <div class="summary-card highlight"><div class="lbl">Receitas do mês</div><div class="val" id="ps-receitas">R$ 0,00</div></div>
+      <div class="summary-card"><div class="lbl">Despesas do mês</div><div class="val" id="ps-despesas">R$ 0,00</div></div>
+      <div class="summary-card" id="ps-saldo-card"><div class="lbl">Saldo do mês</div><div class="val" id="ps-saldo">R$ 0,00</div></div>
+      <div class="summary-card"><div class="lbl">Fixas pendentes</div><div class="val" id="ps-pendentes">R$ 0,00</div></div>
+    </div>
+    <div class="card">
+      <h3>Contas fixas deste mês<span class="hint">Marque as que já foram pagas</span></h3>
+      <div id="ps-fixasChecklist"></div>
+    </div>
+    <div class="card">
+      <h3>Gastos por categoria<span class="hint">Atualiza sozinho conforme você lança despesas</span></h3>
+      <div class="category-chart-wrap">
+        <div id="ps-categoryChart"></div>
+        <div id="ps-categoryLegend" class="category-legend"></div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-block" id="exportCsvPessoal">Exportar CSV do mês</button>
+  </section>
+
+</div>
+
+<!-- BACKUP OVERLAY -->
+<div class="overlay" id="backupOverlay" style="display:none;">
+  <div class="overlay-box">
+    <div class="overlay-close"><button id="closeBackup">&times;</button></div>
+    <h3>Backup dos dados</h3>
+    <p>Os dados desse app ficam salvos só neste navegador/aparelho. Exporte um backup de vez em quando — e importe aqui se trocar de aparelho ou limpar o navegador.</p>
+    <button class="btn btn-primary btn-block" id="exportBackup">Exportar backup (.json)</button>
+    <div class="file-input-wrap">
+      <label style="font-size:12.5px;font-weight:600;color:var(--g5);display:block;margin-bottom:8px;">Importar backup (substitui os dados atuais)</label>
+      <input type="file" id="importBackupFile" accept="application/json">
+    </div>
+    <div class="status-msg" id="backupStatus"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = 'sogno_financeiro_v1';
+
+  function uid(){ return 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function $(id){ return document.getElementById(id); }
+  function qs(sel, ctx){ return (ctx||document).querySelector(sel); }
+  function qsa(sel, ctx){ return Array.prototype.slice.call((ctx||document).querySelectorAll(sel)); }
+  function formatBRL(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+  function escapeHtml(str){
+    return String(str==null?'':str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function todayIso(){ var d=new Date(); return d.toISOString().slice(0,10); }
+  function currentMonthStr(){ var d=new Date(); return d.toISOString().slice(0,7); }
+  function formatDateBR(iso){
+    if(!iso) return '—';
+    var p = iso.split('-');
+    if(p.length!==3) return iso;
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
+
+  function defaultState(){
+    return {
+      version:2, eventos:[], despesasNegocio:[],
+      pessoalFixas:[], pessoalFixasPagamentos:[], pessoalVariaveis:[], pessoalReceitas:[]
+    };
+  }
+
+  // Normalizes/migrates any previously saved shape into the current schema.
+  function migrateState(parsed){
+    var base = defaultState();
+    if (!parsed || typeof parsed !== 'object') return base;
+
+    var eventos = Array.isArray(parsed.eventos) ? parsed.eventos.map(function(ev){
+      return Object.assign({}, ev, { temSinal: typeof ev.temSinal === 'boolean' ? ev.temSinal : true });
+    }) : base.eventos;
+
+    var despesasNegocio = Array.isArray(parsed.despesasNegocio) ? parsed.despesasNegocio : base.despesasNegocio;
+
+    var pessoalFixas = Array.isArray(parsed.pessoalFixas) ? parsed.pessoalFixas : [];
+    var pessoalFixasPagamentos = Array.isArray(parsed.pessoalFixasPagamentos) ? parsed.pessoalFixasPagamentos : [];
+    var pessoalVariaveis = Array.isArray(parsed.pessoalVariaveis) ? parsed.pessoalVariaveis : [];
+    var pessoalReceitas = Array.isArray(parsed.pessoalReceitas) ? parsed.pessoalReceitas : base.pessoalReceitas;
+
+    // Old (v1) shape had a single pessoalDespesas array with a `recorrente` flag.
+    if (Array.isArray(parsed.pessoalDespesas)) {
+      parsed.pessoalDespesas.forEach(function(d){
+        if (d.recorrente) {
+          var dia = 5;
+          if (d.data) { var dd = parseInt(d.data.slice(8,10), 10); if (!isNaN(dd)) dia = dd; }
+          var fixaId = d.id || uid();
+          pessoalFixas.push({ id: fixaId, desc: d.desc, categoria: d.categoria, valor: d.valor, diaVencimento: dia, ativa: true });
+          if (d.data) {
+            pessoalFixasPagamentos.push({ id: uid(), fixaId: fixaId, mes: d.data.slice(0,7), pago: !!d.pago, dataPagamento: d.pago ? d.data : '' });
+          }
+        } else {
+          pessoalVariaveis.push({ id: d.id || uid(), desc: d.desc, categoria: d.categoria, valor: d.valor, data: d.data, pago: !!d.pago });
+        }
+      });
+    }
+
+    return {
+      version:2, eventos:eventos, despesasNegocio:despesasNegocio,
+      pessoalFixas:pessoalFixas, pessoalFixasPagamentos:pessoalFixasPagamentos,
+      pessoalVariaveis:pessoalVariaveis, pessoalReceitas:pessoalReceitas
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      return migrateState(JSON.parse(raw));
+    }catch(e){
+      console.error('Erro ao carregar dados salvos:', e);
+      return defaultState();
+    }
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){
+      console.error('Erro ao salvar dados:', e);
+      alert('Não foi possível salvar os dados neste navegador. Verifique o espaço de armazenamento.');
+    }
+  }
+
+  var state = loadState();
+  var editingEventoId = null;
+  var editingDespesaNegId = null;
+  var editingFixaId = null;
+  var editingVariavelId = null;
+  var editingReceitaId = null;
+
+  /* ===================== MODE + TABS ===================== */
+  function setMode(mode){
+    $('modeSognoBtn').classList.toggle('active', mode === 'sogno');
+    $('modePessoalBtn').classList.toggle('active', mode === 'pessoal');
+    $('tabsSogno').style.display = mode === 'sogno' ? 'flex' : 'none';
+    $('tabsPessoal').style.display = mode === 'pessoal' ? 'flex' : 'none';
+    var sognoPanels = ['eventos','despesasNegocio','resumoSogno'];
+    var pessoalPanels = ['fixas','variaveis','receitas','resumoPessoal'];
+    (mode === 'sogno' ? sognoPanels : pessoalPanels).forEach(function(p, i){ showPanel(p, i === 0); });
+    (mode === 'sogno' ? pessoalPanels : sognoPanels).forEach(function(p){ showPanel(p, false); });
+    var tabBar = mode === 'sogno' ? $('tabsSogno') : $('tabsPessoal');
+    qsa('.tab-btn', tabBar).forEach(function(b, i){ b.classList.toggle('active', i===0); });
+  }
+
+  function showPanel(name, active){
+    var el = qs('.panel[data-panel="'+name+'"]');
+    if (!el) return;
+    el.style.display = active ? 'block' : 'none';
+    el.classList.toggle('active', active);
+  }
+
+  function initTabs(){
+    $('modeSognoBtn').addEventListener('click', function(){ setMode('sogno'); });
+    $('modePessoalBtn').addEventListener('click', function(){ setMode('pessoal'); });
+
+    [$('tabsSogno'), $('tabsPessoal')].forEach(function(bar){
+      qsa('.tab-btn', bar).forEach(function(btn){
+        btn.addEventListener('click', function(){
+          qsa('.tab-btn', bar).forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          var panels = bar === $('tabsSogno') ? ['eventos','despesasNegocio','resumoSogno'] : ['fixas','variaveis','receitas','resumoPessoal'];
+          panels.forEach(function(p){ showPanel(p, p === btn.dataset.panel); });
+        });
+      });
+    });
+  }
+
+  /* ===================== EVENTOS (SOGNO) ===================== */
+  function updateSinalVisibility(){
+    var semSinal = $('ev-semSinal').checked;
+    $('ev-sinalBlock').style.display = semSinal ? 'none' : 'block';
+    $('ev-saldoLabel').textContent = semSinal ? 'Valor do pagamento' : 'Valor do saldo';
+    $('ev-saldoDataLabel').textContent = semSinal ? 'Data do pagamento (se pago)' : 'Data do saldo (se pago)';
+    $('ev-saldoPagoLabel').textContent = semSinal ? 'Pagamento já foi feito' : 'Saldo já foi pago';
+  }
+
+  function resetEventoForm(){
+    editingEventoId = null;
+    $('eventoFormTitle').textContent = 'Novo evento';
+    ['ev-cliente','ev-evento','ev-data','ev-valorTotal','ev-sinalValor','ev-sinalData','ev-saldoValor','ev-saldoData'].forEach(function(id){ $(id).value=''; });
+    $('ev-segmento').value = 'Festa/Balada';
+    $('ev-sinalPago').checked = false;
+    $('ev-saldoPago').checked = false;
+    $('ev-semSinal').checked = false;
+    updateSinalVisibility();
+  }
+
+  function openEventoForm(){ $('eventoForm').style.display = 'block'; $('toggleEventoForm').style.display = 'none'; }
+  function closeEventoForm(){ $('eventoForm').style.display = 'none'; $('toggleEventoForm').style.display = 'flex'; resetEventoForm(); }
+
+  function fillEventoForm(ev){
+    editingEventoId = ev.id;
+    $('eventoFormTitle').textContent = 'Editar evento';
+    $('ev-cliente').value = ev.cliente || '';
+    $('ev-evento').value = ev.evento || '';
+    $('ev-data').value = ev.data || '';
+    $('ev-segmento').value = ev.segmento || 'Festa/Balada';
+    $('ev-valorTotal').value = ev.valorTotal || '';
+    $('ev-semSinal').checked = ev.temSinal === false;
+    $('ev-sinalValor').value = ev.sinalValor || '';
+    $('ev-sinalData').value = ev.sinalData || '';
+    $('ev-sinalPago').checked = !!ev.sinalPago;
+    $('ev-saldoValor').value = ev.saldoValor || '';
+    $('ev-saldoData').value = ev.saldoData || '';
+    $('ev-saldoPago').checked = !!ev.saldoPago;
+    updateSinalVisibility();
+    openEventoForm();
+  }
+
+  function saveEvento(){
+    var cliente = $('ev-cliente').value.trim();
+    var evento = $('ev-evento').value.trim();
+    if (!cliente || !evento) { alert('Preencha ao menos o cliente e o nome do evento.'); return; }
+
+    var semSinal = $('ev-semSinal').checked;
+    var data = {
+      cliente: cliente, evento: evento, data: $('ev-data').value, segmento: $('ev-segmento').value,
+      valorTotal: parseFloat($('ev-valorTotal').value) || 0,
+      temSinal: !semSinal,
+      saldoValor: parseFloat($('ev-saldoValor').value) || 0,
+      saldoPago: $('ev-saldoPago').checked,
+      saldoData: $('ev-saldoData').value
+    };
+    if (semSinal) {
+      data.sinalValor = 0; data.sinalPago = true; data.sinalData = '';
+    } else {
+      data.sinalValor = parseFloat($('ev-sinalValor').value) || 0;
+      data.sinalPago = $('ev-sinalPago').checked;
+      data.sinalData = $('ev-sinalData').value;
+    }
+
+    if (editingEventoId) {
+      var existing = state.eventos.find(function(e){ return e.id === editingEventoId; });
+      if (existing) Object.assign(existing, data);
+    } else {
+      data.id = uid();
+      data.despesas = [];
+      state.eventos.push(data);
+    }
+    saveState();
+    closeEventoForm();
+    renderEventos();
+    renderResumoSogno();
+  }
+
+  function deleteEvento(id){
+    if (!confirm('Excluir esse evento e todas as despesas ligadas a ele?')) return;
+    state.eventos = state.eventos.filter(function(e){ return e.id !== id; });
+    saveState();
+    renderEventos();
+    renderResumoSogno();
+  }
+
+  function eventoStatus(ev){
+    if (ev.temSinal === false) {
+      return ev.saldoPago ? { label:'Concluído', cls:'badge-done' } : { label:'Aguardando pagamento', cls:'badge-pending' };
+    }
+    if (!ev.sinalPago) return { label:'Aguardando sinal', cls:'badge-pending' };
+    if (ev.sinalPago && !ev.saldoPago) return { label:'Sinal pago — aguardando saldo', cls:'badge-partial' };
+    return { label:'Concluído', cls:'badge-done' };
+  }
+
+  function eventoDespesasTotal(ev){
+    return (ev.despesas || []).reduce(function(sum, d){ return sum + (d.valor||0); }, 0);
+  }
+
+  function renderEventos(){
+    var list = $('eventosList');
+    list.innerHTML = '';
+    if (state.eventos.length === 0) {
+      list.innerHTML = '<div class="empty-state">Nenhum evento cadastrado ainda.</div>';
+      return;
+    }
+    var sorted = state.eventos.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+    sorted.forEach(function(ev){
+      var status = eventoStatus(ev);
+      var despesasTotal = eventoDespesasTotal(ev);
+      var lucro = ev.valorTotal - despesasTotal;
+      var row = document.createElement('div');
+      row.className = 'record';
+      var despesasHtml = (ev.despesas||[]).map(function(d){
+        return '<div class="sub-expense-row"><span>'+escapeHtml(d.desc)+' ('+escapeHtml(d.categoria)+')</span><span>'+formatBRL(d.valor)+'</span></div>';
+      }).join('');
+      row.innerHTML =
+        '<div class="record-top">'+
+          '<div><div class="record-title">'+escapeHtml(ev.cliente)+' — '+escapeHtml(ev.evento)+'</div>'+
+          '<div class="record-sub">'+formatDateBR(ev.data)+' · '+escapeHtml(ev.segmento||'')+(ev.temSinal===false?' · Pagamento único':'')+'</div></div>'+
+          '<div class="record-value">'+formatBRL(ev.valorTotal)+'</div>'+
+        '</div>'+
+        '<div class="record-meta">'+
+          '<span class="badge '+status.cls+'">'+status.label+'</span>'+
+          '<span class="badge">Lucro: '+formatBRL(lucro)+'</span>'+
+        '</div>'+
+        '<div class="sub-expenses">'+
+          '<div class="sub-expenses-title">Despesas do evento</div>'+
+          (despesasHtml || '<div class="empty-state" style="padding:8px 0;">Nenhuma despesa lançada.</div>')+
+          '<div class="mini-add">'+
+            '<input type="text" data-role="desc" placeholder="Descrição">'+
+            '<select data-role="categoria"><option>Equipe/Freelancers</option><option>Equipamento</option><option>Deslocamento/Combustível</option><option>Edição/Terceirizados</option><option>Marketing</option><option>Outros</option></select>'+
+            '<input type="number" data-role="valor" placeholder="Valor" min="0" step="10">'+
+            '<button data-role="add-desp">Adicionar</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="record-actions">'+
+          '<button class="icon-btn" data-action="edit">Editar</button>'+
+          '<button class="icon-btn danger" data-action="delete">Excluir</button>'+
+        '</div>';
+
+      row.querySelector('[data-action="edit"]').addEventListener('click', function(){ fillEventoForm(ev); });
+      row.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteEvento(ev.id); });
+      row.querySelector('[data-role="add-desp"]').addEventListener('click', function(){
+        var descInput = row.querySelector('[data-role="desc"]');
+        var catInput = row.querySelector('[data-role="categoria"]');
+        var valInput = row.querySelector('[data-role="valor"]');
+        var desc = descInput.value.trim();
+        var valor = parseFloat(valInput.value) || 0;
+        if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido para a despesa.'); return; }
+        ev.despesas = ev.despesas || [];
+        ev.despesas.push({ id: uid(), desc: desc, categoria: catInput.value, valor: valor, data: todayIso() });
+        saveState();
+        renderEventos();
+        renderResumoSogno();
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  /* ===================== DESPESAS DO NEGÓCIO ===================== */
+  function resetDespesaNegForm(){
+    editingDespesaNegId = null;
+    $('despesaNegFormTitle').textContent = 'Nova despesa';
+    $('dn-desc').value = ''; $('dn-valor').value=''; $('dn-data').value='';
+    $('dn-categoria').value = 'Equipe/Freelancers';
+    $('dn-recorrente').checked = false;
+  }
+  function openDespesaNegForm(){ $('despesaNegForm').style.display='block'; $('toggleDespesaNegForm').style.display='none'; }
+  function closeDespesaNegForm(){ $('despesaNegForm').style.display='none'; $('toggleDespesaNegForm').style.display='flex'; resetDespesaNegForm(); }
+
+  function fillDespesaNegForm(d){
+    editingDespesaNegId = d.id;
+    $('despesaNegFormTitle').textContent = 'Editar despesa';
+    $('dn-desc').value = d.desc||'';
+    $('dn-categoria').value = d.categoria||'Equipe/Freelancers';
+    $('dn-valor').value = d.valor||'';
+    $('dn-data').value = d.data||'';
+    $('dn-recorrente').checked = !!d.recorrente;
+    openDespesaNegForm();
+  }
+
+  function saveDespesaNeg(){
+    var desc = $('dn-desc').value.trim();
+    var valor = parseFloat($('dn-valor').value) || 0;
+    if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido.'); return; }
+    var data = { desc:desc, categoria:$('dn-categoria').value, valor:valor, data:$('dn-data').value, recorrente:$('dn-recorrente').checked };
+    if (editingDespesaNegId) {
+      var existing = state.despesasNegocio.find(function(d){ return d.id === editingDespesaNegId; });
+      if (existing) Object.assign(existing, data);
+    } else {
+      data.id = uid();
+      state.despesasNegocio.push(data);
+    }
+    saveState();
+    closeDespesaNegForm();
+    renderDespesasNeg();
+    renderResumoSogno();
+  }
+
+  function deleteDespesaNeg(id){
+    if (!confirm('Excluir essa despesa?')) return;
+    state.despesasNegocio = state.despesasNegocio.filter(function(d){ return d.id !== id; });
+    saveState();
+    renderDespesasNeg();
+    renderResumoSogno();
+  }
+
+  function renderDespesasNeg(){
+    var list = $('despesasNegList');
+    list.innerHTML = '';
+    if (state.despesasNegocio.length === 0) {
+      list.innerHTML = '<div class="empty-state">Nenhuma despesa geral cadastrada ainda.</div>';
+      return;
+    }
+    var sorted = state.despesasNegocio.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+    sorted.forEach(function(d){
+      var row = document.createElement('div');
+      row.className = 'record';
+      row.innerHTML =
+        '<div class="record-top">'+
+          '<div><div class="record-title">'+escapeHtml(d.desc)+'</div>'+
+          '<div class="record-sub">'+escapeHtml(d.categoria)+' · '+formatDateBR(d.data)+(d.recorrente?' · Recorrente':'')+'</div></div>'+
+          '<div class="record-value">'+formatBRL(d.valor)+'</div>'+
+        '</div>'+
+        '<div class="record-actions">'+
+          '<button class="icon-btn" data-action="edit">Editar</button>'+
+          '<button class="icon-btn danger" data-action="delete">Excluir</button>'+
+        '</div>';
+      row.querySelector('[data-action="edit"]').addEventListener('click', function(){ fillDespesaNegForm(d); });
+      row.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteDespesaNeg(d.id); });
+      list.appendChild(row);
+    });
+  }
+
+  /* ===================== PESSOAL: FIXAS (templates) ===================== */
+  function resetFixaForm(){
+    editingFixaId = null;
+    $('fixaFormTitle').textContent = 'Nova despesa fixa';
+    $('fx-desc').value=''; $('fx-valor').value=''; $('fx-dia').value='';
+    $('fx-categoria').value = 'Moradia';
+  }
+  function openFixaForm(){ $('fixaForm').style.display='block'; $('toggleFixaForm').style.display='none'; }
+  function closeFixaForm(){ $('fixaForm').style.display='none'; $('toggleFixaForm').style.display='flex'; resetFixaForm(); }
+
+  function fillFixaForm(f){
+    editingFixaId = f.id;
+    $('fixaFormTitle').textContent = 'Editar despesa fixa';
+    $('fx-desc').value = f.desc||'';
+    $('fx-categoria').value = f.categoria||'Moradia';
+    $('fx-valor').value = f.valor||'';
+    $('fx-dia').value = f.diaVencimento||'';
+    openFixaForm();
+  }
+
+  function saveFixa(){
+    var desc = $('fx-desc').value.trim();
+    var valor = parseFloat($('fx-valor').value) || 0;
+    var dia = parseInt($('fx-dia').value, 10) || 1;
+    if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido.'); return; }
+    if (dia < 1) dia = 1; if (dia > 31) dia = 31;
+    var data = { desc:desc, categoria:$('fx-categoria').value, valor:valor, diaVencimento:dia, ativa:true };
+    if (editingFixaId) {
+      var existing = state.pessoalFixas.find(function(f){ return f.id === editingFixaId; });
+      if (existing) Object.assign(existing, data);
+    } else {
+      data.id = uid();
+      state.pessoalFixas.push(data);
+    }
+    saveState();
+    closeFixaForm();
+    renderFixas();
+    renderResumoPessoal();
+  }
+
+  function deleteFixa(id){
+    if (!confirm('Excluir essa despesa fixa? O histórico de pagamentos dela também será apagado.')) return;
+    state.pessoalFixas = state.pessoalFixas.filter(function(f){ return f.id !== id; });
+    state.pessoalFixasPagamentos = state.pessoalFixasPagamentos.filter(function(p){ return p.fixaId !== id; });
+    saveState();
+    renderFixas();
+    renderResumoPessoal();
+  }
+
+  function toggleFixaAtiva(f){
+    f.ativa = !f.ativa;
+    saveState();
+    renderFixas();
+    renderResumoPessoal();
+  }
+
+  function renderFixas(){
+    var list = $('fixasList');
+    list.innerHTML = '';
+    if (state.pessoalFixas.length === 0) {
+      list.innerHTML = '<div class="empty-state">Nenhuma despesa fixa cadastrada ainda.</div>';
+      return;
+    }
+    var sorted = state.pessoalFixas.slice().sort(function(a,b){ return (a.diaVencimento||0) - (b.diaVencimento||0); });
+    sorted.forEach(function(f){
+      var row = document.createElement('div');
+      row.className = 'record';
+      row.innerHTML =
+        '<div class="record-top">'+
+          '<div><div class="record-title">'+escapeHtml(f.desc)+'</div>'+
+          '<div class="record-sub">'+escapeHtml(f.categoria)+' · vence todo dia '+(f.diaVencimento||'—')+'</div></div>'+
+          '<div class="record-value">'+formatBRL(f.valor)+'</div>'+
+        '</div>'+
+        '<div class="record-meta"><span class="badge '+(f.ativa?'badge-done':'badge-off')+'">'+(f.ativa?'Ativa':'Pausada')+'</span></div>'+
+        '<div class="record-actions">'+
+          '<button class="icon-btn" data-action="toggle">'+(f.ativa?'Pausar':'Reativar')+'</button>'+
+          '<button class="icon-btn" data-action="edit">Editar</button>'+
+          '<button class="icon-btn danger" data-action="delete">Excluir</button>'+
+        '</div>';
+      row.querySelector('[data-action="toggle"]').addEventListener('click', function(){ toggleFixaAtiva(f); });
+      row.querySelector('[data-action="edit"]').addEventListener('click', function(){ fillFixaForm(f); });
+      row.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteFixa(f.id); });
+      list.appendChild(row);
+    });
+  }
+
+  /* ===================== PESSOAL: VARIÁVEIS ===================== */
+  function resetVariavelForm(){
+    editingVariavelId = null;
+    $('variavelFormTitle').textContent = 'Nova despesa variável';
+    $('vr-desc').value=''; $('vr-valor').value=''; $('vr-data').value='';
+    $('vr-categoria').value = 'Mercado';
+    $('vr-pago').checked = false;
+  }
+  function openVariavelForm(){ $('variavelForm').style.display='block'; $('toggleVariavelForm').style.display='none'; }
+  function closeVariavelForm(){ $('variavelForm').style.display='none'; $('toggleVariavelForm').style.display='flex'; resetVariavelForm(); }
+
+  function fillVariavelForm(v){
+    editingVariavelId = v.id;
+    $('variavelFormTitle').textContent = 'Editar despesa';
+    $('vr-desc').value = v.desc||'';
+    $('vr-categoria').value = v.categoria||'Mercado';
+    $('vr-valor').value = v.valor||'';
+    $('vr-data').value = v.data||'';
+    $('vr-pago').checked = !!v.pago;
+    openVariavelForm();
+  }
+
+  function saveVariavel(){
+    var desc = $('vr-desc').value.trim();
+    var valor = parseFloat($('vr-valor').value) || 0;
+    if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido.'); return; }
+    var data = { desc:desc, categoria:$('vr-categoria').value, valor:valor, data:$('vr-data').value, pago:$('vr-pago').checked };
+    if (editingVariavelId) {
+      var existing = state.pessoalVariaveis.find(function(v){ return v.id === editingVariavelId; });
+      if (existing) Object.assign(existing, data);
+    } else {
+      data.id = uid();
+      state.pessoalVariaveis.push(data);
+    }
+    saveState();
+    closeVariavelForm();
+    renderVariaveis();
+    renderResumoPessoal();
+  }
+
+  function deleteVariavel(id){
+    if (!confirm('Excluir essa despesa?')) return;
+    state.pessoalVariaveis = state.pessoalVariaveis.filter(function(v){ return v.id !== id; });
+    saveState();
+    renderVariaveis();
+    renderResumoPessoal();
+  }
+
+  function variavelStatus(v){
+    if (v.pago) return { label:'Paga', cls:'badge-done' };
+    if (v.data && v.data < todayIso()) return { label:'Atrasada', cls:'badge-late' };
+    return { label:'Pendente', cls:'badge-pending' };
+  }
+
+  function renderVariaveis(){
+    var list = $('variaveisList');
+    list.innerHTML = '';
+    if (state.pessoalVariaveis.length === 0) {
+      list.innerHTML = '<div class="empty-state">Nenhuma despesa variável cadastrada ainda.</div>';
+      return;
+    }
+    var sorted = state.pessoalVariaveis.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+    sorted.forEach(function(v){
+      var status = variavelStatus(v);
+      var row = document.createElement('div');
+      row.className = 'record';
+      row.innerHTML =
+        '<div class="record-top">'+
+          '<div><div class="record-title">'+escapeHtml(v.desc)+'</div>'+
+          '<div class="record-sub">'+escapeHtml(v.categoria)+' · '+formatDateBR(v.data)+'</div></div>'+
+          '<div class="record-value">'+formatBRL(v.valor)+'</div>'+
+        '</div>'+
+        '<div class="record-meta"><span class="badge '+status.cls+'">'+status.label+'</span></div>'+
+        '<div class="record-actions">'+
+          '<button class="icon-btn" data-action="edit">Editar</button>'+
+          '<button class="icon-btn danger" data-action="delete">Excluir</button>'+
+        '</div>';
+      row.querySelector('[data-action="edit"]').addEventListener('click', function(){ fillVariavelForm(v); });
+      row.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteVariavel(v.id); });
+      list.appendChild(row);
+    });
+  }
+
+  /* ===================== PESSOAL: RECEITAS ===================== */
+  function resetReceitaForm(){
+    editingReceitaId = null;
+    $('receitaFormTitle').textContent = 'Nova receita';
+    $('rc-desc').value=''; $('rc-valor').value=''; $('rc-data').value='';
+  }
+  function openReceitaForm(){ $('receitaForm').style.display='block'; $('toggleReceitaForm').style.display='none'; }
+  function closeReceitaForm(){ $('receitaForm').style.display='none'; $('toggleReceitaForm').style.display='flex'; resetReceitaForm(); }
+
+  function fillReceitaForm(r){
+    editingReceitaId = r.id;
+    $('receitaFormTitle').textContent = 'Editar receita';
+    $('rc-desc').value = r.desc||'';
+    $('rc-valor').value = r.valor||'';
+    $('rc-data').value = r.data||'';
+    openReceitaForm();
+  }
+
+  function saveReceita(){
+    var desc = $('rc-desc').value.trim();
+    var valor = parseFloat($('rc-valor').value) || 0;
+    if (!desc || valor <= 0) { alert('Preencha a descrição e um valor válido.'); return; }
+    var data = { desc:desc, valor:valor, data:$('rc-data').value };
+    if (editingReceitaId) {
+      var existing = state.pessoalReceitas.find(function(r){ return r.id === editingReceitaId; });
+      if (existing) Object.assign(existing, data);
+    } else {
+      data.id = uid();
+      state.pessoalReceitas.push(data);
+    }
+    saveState();
+    closeReceitaForm();
+    renderReceitas();
+    renderResumoPessoal();
+  }
+
+  function deleteReceita(id){
+    if (!confirm('Excluir essa receita?')) return;
+    state.pessoalReceitas = state.pessoalReceitas.filter(function(r){ return r.id !== id; });
+    saveState();
+    renderReceitas();
+    renderResumoPessoal();
+  }
+
+  function renderReceitas(){
+    var list = $('receitasList');
+    list.innerHTML = '';
+    if (state.pessoalReceitas.length === 0) {
+      list.innerHTML = '<div class="empty-state">Nenhuma receita cadastrada ainda.</div>';
+      return;
+    }
+    var sorted = state.pessoalReceitas.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+    sorted.forEach(function(r){
+      var row = document.createElement('div');
+      row.className = 'record';
+      row.innerHTML =
+        '<div class="record-top">'+
+          '<div><div class="record-title">'+escapeHtml(r.desc)+'</div>'+
+          '<div class="record-sub">'+formatDateBR(r.data)+'</div></div>'+
+          '<div class="record-value">'+formatBRL(r.valor)+'</div>'+
+        '</div>'+
+        '<div class="record-actions">'+
+          '<button class="icon-btn" data-action="edit">Editar</button>'+
+          '<button class="icon-btn danger" data-action="delete">Excluir</button>'+
+        '</div>';
+      row.querySelector('[data-action="edit"]').addEventListener('click', function(){ fillReceitaForm(r); });
+      row.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteReceita(r.id); });
+      list.appendChild(row);
+    });
+  }
+
+  /* ===================== FIXAS: PAGAMENTO POR MÊS ===================== */
+  function getPagamento(fixaId, mes){
+    return state.pessoalFixasPagamentos.find(function(p){ return p.fixaId === fixaId && p.mes === mes; });
+  }
+  function setPagamento(fixaId, mes, pago){
+    var rec = getPagamento(fixaId, mes);
+    if (rec) {
+      rec.pago = pago; rec.dataPagamento = pago ? todayIso() : '';
+    } else {
+      state.pessoalFixasPagamentos.push({ id: uid(), fixaId: fixaId, mes: mes, pago: pago, dataPagamento: pago ? todayIso() : '' });
+    }
+    saveState();
+  }
+  function fixaStatus(f, mes){
+    var pagamento = getPagamento(f.id, mes);
+    var pago = pagamento ? pagamento.pago : false;
+    if (pago) return { label:'Paga', cls:'badge-done', pago:true };
+    if (mes < currentMonthStr()) return { label:'Atrasada', cls:'badge-late', pago:false };
+    if (mes === currentMonthStr()) {
+      var today = new Date().getDate();
+      if ((f.diaVencimento||1) < today) return { label:'Atrasada', cls:'badge-late', pago:false };
+    }
+    return { label:'Pendente', cls:'badge-pending', pago:false };
+  }
+
+  function renderFixasChecklist(mes){
+    var box = $('ps-fixasChecklist');
+    box.innerHTML = '';
+    var ativas = state.pessoalFixas.filter(function(f){ return f.ativa; });
+    if (ativas.length === 0) {
+      box.innerHTML = '<div class="empty-state">Nenhuma despesa fixa ativa. Cadastre na aba Fixas.</div>';
+      return;
+    }
+    var sorted = ativas.slice().sort(function(a,b){ return (a.diaVencimento||0) - (b.diaVencimento||0); });
+    sorted.forEach(function(f){
+      var status = fixaStatus(f, mes);
+      var row = document.createElement('div');
+      row.className = 'checklist-row';
+      row.innerHTML =
+        '<input type="checkbox" '+(status.pago?'checked':'')+'>'+
+        '<div class="cl-body"><div class="cl-title">'+escapeHtml(f.desc)+'</div>'+
+        '<div class="cl-sub">'+escapeHtml(f.categoria)+' · vence dia '+f.diaVencimento+' · <span class="badge '+status.cls+'" style="margin-left:2px;">'+status.label+'</span></div></div>'+
+        '<div class="cl-value">'+formatBRL(f.valor)+'</div>';
+      row.querySelector('input').addEventListener('change', function(e){
+        setPagamento(f.id, mes, e.target.checked);
+        renderFixasChecklist(mes);
+        renderResumoPessoal();
+      });
+      box.appendChild(row);
+    });
+  }
+
+  /* ===================== GRÁFICO DE GASTOS POR CATEGORIA ===================== */
+  var CHART_PALETTE = ['#4C6EF5','#F76707','#37B24D','#E64980','#7950F2','#12B886','#F59F00','#E03131','#1098AD','#495057'];
+
+  function computeCategoryTotals(month){
+    var totals = {};
+    state.pessoalFixas.filter(function(f){ return f.ativa; }).forEach(function(f){
+      totals[f.categoria] = (totals[f.categoria]||0) + f.valor;
+    });
+    state.pessoalVariaveis.forEach(function(v){
+      if (inMonth(v.data, month)) totals[v.categoria] = (totals[v.categoria]||0) + v.valor;
+    });
+    return Object.keys(totals)
+      .map(function(cat){ return { categoria:cat, valor:totals[cat] }; })
+      .filter(function(x){ return x.valor > 0; })
+      .sort(function(a,b){ return b.valor - a.valor; });
+  }
+
+  function polarToCartesian(cx,cy,r,angleDeg){
+    var rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+  function describeSlice(cx,cy,r,startAngle,endAngle,color){
+    var start = polarToCartesian(cx,cy,r,endAngle);
+    var end = polarToCartesian(cx,cy,r,startAngle);
+    var largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+    var d = ['M',cx,cy,'L',end.x,end.y,'A',r,r,0,largeArc,1,start.x,start.y,'Z'].join(' ');
+    return '<path d="'+d+'" fill="'+color+'"></path>';
+  }
+
+  function renderCategoryChart(month){
+    var chartBox = $('ps-categoryChart');
+    var legendBox = $('ps-categoryLegend');
+    var data = computeCategoryTotals(month);
+
+    if (data.length === 0) {
+      chartBox.innerHTML = '<div class="empty-state">Nenhuma despesa neste mês ainda.</div>';
+      legendBox.innerHTML = '';
+      return;
+    }
+
+    var total = data.reduce(function(s,d){ return s + d.valor; }, 0);
+    var cx=100, cy=100, r=90;
+    var paths = '';
+
+    if (data.length === 1) {
+      paths = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+CHART_PALETTE[0]+'"></circle>';
+      data[0]._color = CHART_PALETTE[0];
+    } else {
+      var startAngle = 0;
+      data.forEach(function(d, i){
+        var angle = (d.valor / total) * 360;
+        var endAngle = startAngle + angle;
+        var color = CHART_PALETTE[i % CHART_PALETTE.length];
+        paths += describeSlice(cx,cy,r,startAngle,endAngle,color);
+        d._color = color;
+        startAngle = endAngle;
+      });
+    }
+
+    chartBox.innerHTML = '<svg viewBox="0 0 200 200">'+paths+'</svg>';
+    legendBox.innerHTML = data.map(function(d){
+      var pct = (d.valor / total * 100).toFixed(0);
+      return '<div class="legend-row"><span class="legend-dot" style="background:'+d._color+'"></span>'+
+        '<span class="legend-label">'+escapeHtml(d.categoria)+'</span>'+
+        '<span class="legend-value">'+formatBRL(d.valor)+' · '+pct+'%</span></div>';
+    }).join('');
+  }
+
+  /* ===================== RESUMOS ===================== */
+  function inMonth(dateIso, monthStr){
+    return !!dateIso && dateIso.slice(0,7) === monthStr;
+  }
+
+  function renderResumoSogno(){
+    var month = $('mesSogno').value || currentMonthStr();
+    var faturamento = 0, despesasMes = 0, aReceber = 0;
+
+    state.eventos.forEach(function(ev){
+      if (ev.sinalPago && inMonth(ev.sinalData, month)) faturamento += ev.sinalValor;
+      if (ev.saldoPago && inMonth(ev.saldoData, month)) faturamento += ev.saldoValor;
+      if (!ev.sinalPago) aReceber += ev.sinalValor;
+      if (!ev.saldoPago) aReceber += ev.saldoValor;
+      (ev.despesas||[]).forEach(function(d){
+        if (inMonth(d.data, month)) despesasMes += d.valor;
+      });
+    });
+    state.despesasNegocio.forEach(function(d){
+      if (inMonth(d.data, month)) despesasMes += d.valor;
+    });
+
+    $('sg-faturamento').textContent = formatBRL(faturamento);
+    $('sg-despesas').textContent = formatBRL(despesasMes);
+    var lucro = faturamento - despesasMes;
+    var lucroEl = $('sg-lucro');
+    lucroEl.textContent = formatBRL(lucro);
+    lucroEl.parentElement.classList.toggle('neg', lucro < 0);
+    $('sg-areceber').textContent = formatBRL(aReceber);
+
+    var abertosBox = $('sg-abertos');
+    var abertos = state.eventos.filter(function(ev){ return eventoStatus(ev).label !== 'Concluído'; });
+    if (abertos.length === 0) {
+      abertosBox.innerHTML = '<div class="empty-state">Nenhum evento em aberto.</div>';
+    } else {
+      abertosBox.innerHTML = abertos.map(function(ev){
+        var status = eventoStatus(ev);
+        return '<div class="sub-expense-row"><span>'+escapeHtml(ev.cliente)+' — '+escapeHtml(ev.evento)+'</span><span class="badge '+status.cls+'">'+status.label+'</span></div>';
+      }).join('');
+    }
+  }
+
+  function renderResumoPessoal(){
+    var month = $('mesPessoal').value || currentMonthStr();
+    var receitas = 0, despesasVar = 0, fixasTotal = 0, fixasPendentes = 0;
+
+    state.pessoalReceitas.forEach(function(r){
+      if (inMonth(r.data, month)) receitas += r.valor;
+    });
+    state.pessoalVariaveis.forEach(function(v){
+      if (inMonth(v.data, month)) despesasVar += v.valor;
+    });
+    state.pessoalFixas.filter(function(f){ return f.ativa; }).forEach(function(f){
+      fixasTotal += f.valor;
+      var status = fixaStatus(f, month);
+      if (!status.pago) fixasPendentes += f.valor;
+    });
+
+    var despesas = fixasTotal + despesasVar;
+
+    $('ps-receitas').textContent = formatBRL(receitas);
+    $('ps-despesas').textContent = formatBRL(despesas);
+    var saldo = receitas - despesas;
+    $('ps-saldo').textContent = formatBRL(saldo);
+    $('ps-saldo-card').classList.toggle('neg', saldo < 0);
+    $('ps-pendentes').textContent = formatBRL(fixasPendentes);
+
+    renderCategoryChart(month);
+    renderFixasChecklist(month);
+  }
+
+  /* ===================== CSV EXPORT ===================== */
+  function downloadCsv(filename, rows){
+    var csv = rows.map(function(r){
+      return r.map(function(cell){
+        var s = String(cell==null?'':cell).replace(/"/g,'""');
+        return '"'+s+'"';
+      }).join(';');
+    }).join('\r\n');
+    var blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function exportCsvSogno(){
+    var month = $('mesSogno').value || currentMonthStr();
+    var rows = [['Tipo','Cliente/Descrição','Evento','Categoria','Valor','Data','Status']];
+    state.eventos.forEach(function(ev){
+      if (inMonth(ev.sinalData, month) && ev.sinalPago) rows.push(['Entrada (sinal)', ev.cliente, ev.evento, '', ev.sinalValor, ev.sinalData, '']);
+      if (inMonth(ev.saldoData, month) && ev.saldoPago) rows.push(['Entrada (saldo/pagamento)', ev.cliente, ev.evento, '', ev.saldoValor, ev.saldoData, '']);
+      (ev.despesas||[]).forEach(function(d){
+        if (inMonth(d.data, month)) rows.push(['Despesa do evento', d.desc, ev.evento, d.categoria, -d.valor, d.data, '']);
+      });
+    });
+    state.despesasNegocio.forEach(function(d){
+      if (inMonth(d.data, month)) rows.push(['Despesa do negócio', d.desc, '', d.categoria, -d.valor, d.data, '']);
+    });
+    downloadCsv('sogno_financeiro_'+month+'.csv', rows);
+  }
+
+  function exportCsvPessoal(){
+    var month = $('mesPessoal').value || currentMonthStr();
+    var rows = [['Tipo','Descrição','Categoria','Valor','Data/Vencimento','Status']];
+    state.pessoalReceitas.forEach(function(r){
+      if (inMonth(r.data, month)) rows.push(['Receita', r.desc, '', r.valor, r.data, '']);
+    });
+    state.pessoalFixas.filter(function(f){ return f.ativa; }).forEach(function(f){
+      var status = fixaStatus(f, month);
+      rows.push(['Despesa fixa', f.desc, f.categoria, -f.valor, 'dia '+f.diaVencimento, status.label]);
+    });
+    state.pessoalVariaveis.forEach(function(v){
+      if (inMonth(v.data, month)) rows.push(['Despesa variável', v.desc, v.categoria, -v.valor, v.data, v.pago?'Paga':'Pendente']);
+    });
+    downloadCsv('pessoal_financeiro_'+month+'.csv', rows);
+  }
+
+  /* ===================== BACKUP ===================== */
+  function openBackup(){ $('backupOverlay').style.display = 'flex'; $('backupStatus').textContent=''; }
+  function closeBackup(){ $('backupOverlay').style.display = 'none'; }
+
+  function exportBackup(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var stamp = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = 'sogno_backup_'+stamp+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    var st = $('backupStatus'); st.textContent = 'Backup exportado com sucesso.'; st.className = 'status-msg ok';
+  }
+
+  function importBackup(file){
+    var st = $('backupStatus');
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        var parsed = JSON.parse(e.target.result);
+        if (!confirm('Isso vai SUBSTITUIR todos os dados atuais pelos do backup. Continuar?')) return;
+        state = migrateState(parsed);
+        saveState();
+        renderAll();
+        st.textContent = 'Backup importado com sucesso.'; st.className = 'status-msg ok';
+      }catch(err){
+        console.error(err);
+        st.textContent = 'Arquivo inválido. Verifique se é um backup exportado por este app.'; st.className = 'status-msg error';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ===================== INIT ===================== */
+  function initForms(){
+    $('toggleEventoForm').addEventListener('click', openEventoForm);
+    $('cancelEvento').addEventListener('click', closeEventoForm);
+    $('saveEvento').addEventListener('click', saveEvento);
+    $('ev-semSinal').addEventListener('change', updateSinalVisibility);
+
+    $('toggleDespesaNegForm').addEventListener('click', openDespesaNegForm);
+    $('cancelDespesaNeg').addEventListener('click', closeDespesaNegForm);
+    $('saveDespesaNeg').addEventListener('click', saveDespesaNeg);
+
+    $('toggleFixaForm').addEventListener('click', openFixaForm);
+    $('cancelFixa').addEventListener('click', closeFixaForm);
+    $('saveFixa').addEventListener('click', saveFixa);
+
+    $('toggleVariavelForm').addEventListener('click', openVariavelForm);
+    $('cancelVariavel').addEventListener('click', closeVariavelForm);
+    $('saveVariavel').addEventListener('click', saveVariavel);
+
+    $('toggleReceitaForm').addEventListener('click', openReceitaForm);
+    $('cancelReceita').addEventListener('click', closeReceitaForm);
+    $('saveReceita').addEventListener('click', saveReceita);
+
+    $('mesSogno').addEventListener('change', renderResumoSogno);
+    $('mesPessoal').addEventListener('change', renderResumoPessoal);
+    $('exportCsvSogno').addEventListener('click', exportCsvSogno);
+    $('exportCsvPessoal').addEventListener('click', exportCsvPessoal);
+
+    $('btnBackup').addEventListener('click', openBackup);
+    $('closeBackup').addEventListener('click', closeBackup);
+    $('backupOverlay').addEventListener('click', function(e){ if (e.target === $('backupOverlay')) closeBackup(); });
+    $('exportBackup').addEventListener('click', exportBackup);
+    $('importBackupFile').addEventListener('change', function(e){ importBackup(e.target.files[0]); });
+  }
+
+  function renderAll(){
+    renderEventos();
+    renderDespesasNeg();
+    renderFixas();
+    renderVariaveis();
+    renderReceitas();
+    renderResumoSogno();
+    renderResumoPessoal();
+  }
+
+  function safeRun(fn, label){
+    try{ fn(); }catch(err){
+      console.error('Erro ao iniciar ('+label+'):', err);
+      var banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#b00020;color:#fff;font-family:sans-serif;font-size:13px;padding:10px 16px;text-align:center;';
+      banner.textContent = 'Algo não carregou direito ('+label+'). Tente recarregar a página.';
+      document.body.appendChild(banner);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    $('mesSogno').value = currentMonthStr();
+    $('mesPessoal').value = currentMonthStr();
+    updateSinalVisibility();
+    safeRun(initTabs, 'abas');
+    safeRun(initForms, 'formulários');
+    safeRun(renderAll, 'dados salvos');
+  });
+})();
+</script>
+</body>
+</html>
